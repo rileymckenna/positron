@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="content-section">
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">{{ legend }}</legend>
+        </fieldset>
+        <div class="form-group">
+            {{ form.mood0(class="btn btn-outline-info") }}
+            {{ form.mood1(class="btn btn-outline-info") }}
+            {{ form.mood2(class="btn btn-outline-info") }}
+        </div>
+    </form>
+</div>
+{% endblock content %}
