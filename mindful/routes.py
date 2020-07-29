@@ -69,15 +69,16 @@ def get_user(user):
 @app.route("/users/new", methods=['POST'])
 def create_user():
     content = request.json
+    tms_id = content['teams_id']
 
-    if(content['teams_id'] != None):
-        possible_user = User.query.filter_by(teams_id=content['teams_id']).first()
+    if(tms_id != None):
+        possible_user = User.query.filter_by(teams_id=tms_id).first()
         if(possible_user == None):
             user = User()
-            user.teams_id = content['teams_id']
+            user.teams_id = tms_id
             db.session.add(user)
             db.session.commit()
-            urlRedirect = "users/{user.teams_id}"
+            urlRedirect = 'users/' + user.teams_id
             return redirect(url_for(urlRedirect), 200)
         else:
             return redirect(url_for('home'), 404)
