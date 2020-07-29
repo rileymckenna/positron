@@ -9,8 +9,8 @@ import json
 @app.route("/")
 @app.route("/home")
 def home():
-    posts = Mood.query.all()
-    return render_template('home.html', posts=posts)
+    data = Mood.query.all()
+    return render_template('home.html', data = data)
 
 @app.route("/dev")
 def dev():
