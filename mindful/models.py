@@ -3,6 +3,7 @@ from mindful import db
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    teams_id = db.Column(db.String(36), nullable=False, unique=True)
     moods = db.relationship('Mood', backref='author', lazy=True)
 
     def __repr__(self):

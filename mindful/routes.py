@@ -6,15 +6,18 @@ from mindful.forms import CheckIn
 from mindful.models import User, Mood
 import json
 
+
 @app.route("/")
 @app.route("/home")
 def home():
     posts = Mood.query.all()
     return render_template('home.html', posts=posts)
 
+
 @app.route("/dev")
 def dev():
     return render_template('credits.html')
+
 
 @app.route("/privacy")
 def privacy():
@@ -41,6 +44,8 @@ def checkin():
             pass
         else:
             pass
+        if(form.text.data != None):
+            post.content = form.text.data
         if post:
             db.session.add(post)
             db.session.commit()
@@ -52,13 +57,47 @@ def checkin():
                            form=form, legend='How are you feeling today?')
 
 
-@app.route("/users/<user>/checkin", methods=['POST'])
-def checkin_post(user):
+@app.route("/users/<user>", methods=['GET'])
+def get_user(user):
+    users = User.query.filter_by(teams_id=user).first()
+    if(users == None):
+        return "User not found"
+    else:
+        return render_template('user.html', user=users)
+
+
+@app.route("/users/new", methods=['POST'])
+def create_user():
     content = request.json
 
-    #TODO: Sanitize input
+    if(content['teams_id'] != None):
+        possible_user = User.query.filter_by(teams_id=content['teams_id']).first()
+        if(possible_user == None):
+            user = User()
+            user.teams_id = content['teams_id']
+            db.session.add(user)
+            db.session.commit()
+            urlRedirect = "users/{user.teams_id}"
+            return redirect(url_for(urlRedirect), 200)
+        else:
+            return redirect(url_for('home'), 404)
+    else:
+        return redirect(url_for('home'), 404)
+
+
+@app.route("/resources")
+def resources():
+    return render_template("resources.html")
+
+
+@app.route("/users/<user>/new", methods=['POST'])
+def createUser(user):
+    content = request.json
+
+    # TODO: Sanitize input
     if (0 < content['rating'] and content['rating'] < 4):
-        post = Mood(rating = content['rating'], user_id = user, content = content['content'])
+        post = Mood(rating=content['rating'],
+                    user_id=user, content=content['content'])
     if post:
         db.session.add(post)
         db.session.commit()
@@ -66,7 +105,3 @@ def checkin_post(user):
     else:
         flash('failed to save response')
     return content
-
-@app.route("/resources")
-def resources():
-    return render_template("resources.html")
