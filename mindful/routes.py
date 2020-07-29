@@ -78,8 +78,7 @@ def create_user():
             user.teams_id = tms_id
             db.session.add(user)
             db.session.commit()
-            urlRedirect = 'users/' + user.teams_id
-            return redirect(url_for(urlRedirect), 200)
+            return redirect(url_for('get_user', user=user.teams_id), 200)
         else:
             return redirect(url_for('home'), 404)
     else:
