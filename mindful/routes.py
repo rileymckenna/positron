@@ -58,7 +58,7 @@ def checkin_post(user):
 
     #TODO: Sanitize input
     if (0 < content['rating'] and content['rating'] < 4):
-        post = Mood(rating = content['rating'], user_id = user)
+        post = Mood(rating = content['rating'], user_id = user, content = content['content'])
     if post:
         db.session.add(post)
         db.session.commit()
