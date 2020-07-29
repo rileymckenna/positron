@@ -4,6 +4,7 @@ from mindful import db, app
 from flask_login import current_user
 from mindful.forms import CheckIn
 from mindful.models import User, Mood
+import json
 
 @app.route("/")
 @app.route("/home")
@@ -30,7 +31,7 @@ def checkin():
     form = CheckIn()
     if form.validate_on_submit():
         if form.mood0.data == True:
-            post = Mood(rating=0, user_id=1, content=content)
+            post = Mood(rating=0, user_id=1)
             pass
         if(form.mood1.data == True):
             post = Mood(rating=1, user_id=1)
@@ -52,12 +53,12 @@ def checkin():
 
 
 @app.route("/users/<user>/checkin", methods=['POST'])
-def checkin_post(user_id):
+def checkin_post(user):
     content = request.json
 
     #TODO: Sanitize input
-    if (0 < content.rating and content.rating < 4):
-        post = Mood(rating = content.rating, user_id = content.user_id)
+    if (0 < content['rating'] and content['rating'] < 4):
+        post = Mood(rating = content['rating'], user_id = user)
     if post:
         db.session.add(post)
         db.session.commit()
