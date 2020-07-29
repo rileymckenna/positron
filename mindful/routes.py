@@ -52,8 +52,54 @@ def checkin():
                            form=form, legend='How are you feeling today?')
 
 
+<<<<<<< HEAD
 @app.route("/users/<user>/checkin", methods=['POST'])
 def checkin_post(user):
+=======
+@app.route("/users/<user>", methods=['GET'])
+def get_user(user):
+    users = User.query.filter_by(teams_id=user).first()
+    if(users == None):
+        return "User not found"
+    else:
+        return users
+
+@app.route("/users/<user>/details", methods=['GET'])
+def get_user(user):
+    users = User.query.filter_by(teams_id=user).first()
+    if(users == None):
+        return "User not found"
+    else:
+        return render_template('user.html', user=users)
+
+
+@app.route("/users/new", methods=['POST'])
+def create_user():
+    content = request.json
+    tms_id = content['teams_id']
+
+    if(tms_id != None):
+        possible_user = User.query.filter_by(teams_id=tms_id).first()
+        if(possible_user == None):
+            user = User()
+            user.teams_id = tms_id
+            db.session.add(user)
+            db.session.commit()
+            return redirect(url_for('get_user', user=user.teams_id), 200)
+        else:
+            return redirect(url_for('home'), 404)
+    else:
+        return redirect(url_for('home'), 404)
+
+
+@app.route("/resources")
+def resources():
+    return render_template("resources.html")
+
+
+@app.route("/users/<user>/new", methods=['POST'])
+def createUser(user):
+>>>>>>> accd1af5f9fce996f3ceb29a04ab91510d0b89f8
     content = request.json
 
     #TODO: Sanitize input
