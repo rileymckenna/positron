@@ -6,6 +6,7 @@ from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationE
 from mindful.models import User
 
 class CheckIn(FlaskForm):
+    text = TextAreaField(label="Share something positive.")
     mood0 = SubmitField(label='🙂')
     mood1 = SubmitField(label='😐')
     mood2 = SubmitField(label='☹️')
