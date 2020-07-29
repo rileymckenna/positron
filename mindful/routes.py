@@ -52,10 +52,6 @@ def checkin():
                            form=form, legend='How are you feeling today?')
 
 
-<<<<<<< HEAD
-@app.route("/users/<user>/checkin", methods=['POST'])
-def checkin_post(user):
-=======
 @app.route("/users/<user>", methods=['GET'])
 def get_user(user):
     users = User.query.filter_by(teams_id=user).first()
@@ -99,7 +95,6 @@ def resources():
 
 @app.route("/users/<user>/new", methods=['POST'])
 def createUser(user):
->>>>>>> accd1af5f9fce996f3ceb29a04ab91510d0b89f8
     content = request.json
 
     #TODO: Sanitize input
