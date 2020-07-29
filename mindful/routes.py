@@ -63,6 +63,14 @@ def get_user(user):
     if(users == None):
         return "User not found"
     else:
+        return users
+
+@app.route("/users/<user>/details", methods=['GET'])
+def get_user(user):
+    users = User.query.filter_by(teams_id=user).first()
+    if(users == None):
+        return "User not found"
+    else:
         return render_template('user.html', user=users)
 
 
