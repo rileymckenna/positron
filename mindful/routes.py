@@ -1,5 +1,5 @@
 
-from flask import render_template, url_for, flash, redirect, request, jsonify
+from flask import render_template, url_for, flash, redirect, request, jsonify, Response
 from mindful import db, app
 from flask_login import current_user
 from mindful.forms import CheckIn
@@ -66,10 +66,10 @@ def get_user(user):
         return users
 
 @app.route("/users/<user>/details", methods=['GET'])
-def get_user(user):
+def get_user_details(user):
     users = User.query.filter_by(teams_id=user).first()
     if(users == None):
-        return "User not found"
+        return "User details not found"
     else:
         return render_template('user.html', user=users)
 
