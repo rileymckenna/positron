@@ -2,15 +2,9 @@
 {% block content %}
   <h1>Mi-tracker</h1>
   {% for user in users %}
-    
-    <article class="media content-section">
-      <div class="media-body">
-        <div class="article-metadata">
+    <p>
           <a class="mr-2" href="#">{{ user.user_id }}</a>
           <a class="mr-2" href="moods">{{ user.teams_id }}</a>
-        </div>
-        </div>
-      </div>
-    </article>
+    </p>
   {% endfor %}
 {% endblock content %}
