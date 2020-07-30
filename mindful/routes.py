@@ -5,13 +5,19 @@ from flask_login import current_user
 from mindful.forms import CheckIn
 from mindful.models import User, Mood
 import json
+from datetime import timedelta, date
+import random
 
 
 @app.route("/")
 @app.route("/home")
 def home():
+    return render_template('home.html')
+
+@app.route("/view")
+def view():
     moods = Mood.query.all()
-    return render_template('home.html', moods=moods)
+    return render_template('view.html', moods=moods)
 
 
 @app.route("/data")
@@ -132,7 +138,6 @@ def createUser(user):
         flash('failed to save response')
     return content
 
-
 @app.route("/users/<user>/moods", methods=['GET'])
 def get_user_moods(user):
     users = User.query.filter_by(teams_id=user).first()
@@ -145,3 +150,17 @@ def get_user_moods(user):
             li.append(item.full_serialize)
         jx = jsonify(li)
         return jx
+@app.route("/populate", methods=['GET'])
+def populate():
+    start_date = date(2020, 1, 1)
+    end_date = date(2020, 8, 1)
+    for user_id in range(5):
+        for single_date in daterange(start_date, end_date):
+            post = Mood(user_id=user_id, rating=random.randint(0,2), time_stamp=single_date)
+            db.session.add(post)
+            db.session.commit()
+    return render_template('home.html')
+
+def daterange(start_date, end_date):
+    for n in range(int((end_date - start_date).days)):
+        yield start_date + timedelta(n)
