@@ -8,6 +8,7 @@ import json
 from datetime import timedelta, date
 import random
 
+
 @app.route("/")
 @app.route("/home")
 def home():
@@ -18,14 +19,17 @@ def view():
     moods = Mood.query.all()
     return render_template('view.html', moods=moods)
 
+
 @app.route("/data")
 def data():
     moods = Mood.query.all()
     return jsonify([i.serialize for i in moods])
 
+
 @app.route("/dev")
 def dev():
     return render_template('credits.html')
+
 
 @app.route("/privacy")
 def privacy():
@@ -53,6 +57,8 @@ def checkin():
         else:
             pass
         if post:
+            if(form.text != None):
+                post.content = form.text.data
             db.session.add(post)
             db.session.commit()
             flash('Thanks for your feedback', 'success')
@@ -71,6 +77,7 @@ def get_user(user):
     else:
         jx = jsonify(users.serialize)
         return jx
+
 
 @app.route("/users/<user>/details", methods=['GET'])
 def get_user_details(user):
@@ -99,6 +106,18 @@ def create_user():
         return redirect(url_for('home'), 404)
 
 
+@app.route("/checkin", methods=['POST'])
+def create_user_checkin():
+    content = request.json
+    rating = content['rating']
+    text = content['content']
+    idx = content['user_id']
+    post = Mood(rating=rating, user_id=idx, content=text)
+    db.session.add(post)
+    db.session.commit()
+    return jsonify(post.full_serialize)
+
+
 @app.route("/resources")
 def resources():
     return render_template("resources.html")
@@ -108,7 +127,7 @@ def resources():
 def createUser(user):
     content = request.json
 
-    #TODO: Sanitize input
+    # TODO: Sanitize input
     if (0 < content['rating'] and content['rating'] < 4):
         post = Mood(rating = content['rating'], user_id = user, content = content['content'])
     if post:
@@ -119,6 +138,18 @@ def createUser(user):
         flash('failed to save response')
     return content
 
+@app.route("/users/<user>/moods", methods=['GET'])
+def get_user_moods(user):
+    users = User.query.filter_by(teams_id=user).first()
+    moods = Mood.query.filter_by(user_id=users.id)
+    if(users == None):
+        return "User not found"
+    else:
+        li = []
+        for item in moods:
+            li.append(item.full_serialize)
+        jx = jsonify(li)
+        return jx
 @app.route("/populate", methods=['GET'])
 def populate():
     start_date = date(2015, 1, 1)
@@ -130,7 +161,10 @@ def populate():
             db.session.commit()
     return render_template('home.html')
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 03110faaac8372ccd95552b10614d624d4bed7c7
 def daterange(start_date, end_date):
     for n in range(int((end_date - start_date).days)):
         yield start_date + timedelta(n)
