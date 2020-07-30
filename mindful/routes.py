@@ -183,13 +183,13 @@ def daterange(start_date, end_date):
         yield start_date + timedelta(n)
 
 
-@app.route("/cleanup/<db>", methods=['GET'])
-def cleanup(db):
-    if db == 'moods':
+@app.route("/cleanup/<table>", methods=['GET'])
+def cleanup(table):
+    if table == 'moods':
         Mood.query.delete()
-    elif db == 'users':
+    elif table == 'users':
         User.query.delete()
     else:
         return 'database not found'
-    db.session.commit()
+    db.session.commit()    
     return render_template('home.html')
