@@ -1,0 +1,6 @@
+{% extends "layout.html" %}
+{% block content %}
+    {% for mood in moods %}
+        <p>{{mood.time_stamp}}: {{ mood.user_id }} - {{mood.rating}} </p>
+    {% endfor %}
+{% endblock content %}

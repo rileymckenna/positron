@@ -1,3 +1,8 @@
 env
 .vscode
-mindful/__pycache__
+mindful/__pycache__/*
+mindful/site.db
+mindful/__pycache__/__init__.cpython-38.pyc
+mindful/__pycache__/forms.cpython-38.pyc
+mindful/__pycache__/models.cpython-38.pyc
+mindful/__pycache__/routes.cpython-38.pyc
