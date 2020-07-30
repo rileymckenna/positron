@@ -107,7 +107,3 @@ def createUser(user):
     else:
         flash('failed to save response')
     return content
-
-@app.route("/resources")
-def resources():
-    return render_template("resources.html")
