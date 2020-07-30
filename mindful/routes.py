@@ -130,8 +130,6 @@ def populate():
             db.session.commit()
     return render_template('home.html')
 
-            
-
 
 def daterange(start_date, end_date):
     for n in range(int((end_date - start_date).days)):
