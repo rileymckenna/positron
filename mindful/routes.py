@@ -86,7 +86,7 @@ def get_user(user):
 
 @app.route("/users/<user>/details", methods=['GET'])
 def get_user_details(user):
-    users = Mood.query.filter_by(user_id=user).first()
+    users = User.query.filter_by(teams_id=user).first()
     if(users == None):
         return "User details not found"
     else:
