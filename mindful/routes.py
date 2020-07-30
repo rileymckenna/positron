@@ -86,7 +86,7 @@ def get_user(user):
 
 @app.route("/users/<user>/details", methods=['GET'])
 def get_user_details(user):
-    users = Mood.query.filter_by(user_id=user).first()
+    users = User.query.filter_by(teams_id=user).first()
     if(users == None):
         return "User details not found"
     else:
@@ -149,7 +149,7 @@ def get_user_moods(user):
     if(users == None):
         return "User not found"
     else:
-        return render_template('home.html', user=user)
+        return render_template('home.html', user=users.id)
 
 @app.route("/populate/<emotion>", methods=['GET'])
 def populate(emotion):
@@ -177,6 +177,6 @@ def daterange(start_date, end_date):
 
 @app.route("/cleanup", methods=['GET'])
 def cleanup():
-    db.session.execute(Mood.delete())
+    delete = Mood.query.delete()
     db.session.commit()
     return render_template('home.html')
