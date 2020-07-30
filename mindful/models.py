@@ -34,3 +34,7 @@ class Mood(db.Model):
     @property
     def serialize(self):
         return {'date': self.time_stamp.strftime('%Y-%m-%d'), 'value': self.rating}
+
+    @property
+    def full_serialize(self):
+        return {'date': self.time_stamp.strftime('%Y-%m-%d'), 'rating': self.rating, 'user_id': self.user_id, 'content': self.content, 'id': self.id}
