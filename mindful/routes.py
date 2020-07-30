@@ -121,9 +121,9 @@ def createUser(user):
 
 @app.route("/populate", methods=['GET'])
 def populate():
-    start_date = date(2020, 1, 1)
+    start_date = date(2015, 1, 1)
     end_date = date(2020, 8, 1)
-    for user_id in range(5):
+    for user_id in range(1):
         for single_date in daterange(start_date, end_date):
             post = Mood(user_id=user_id, rating=random.randint(0,2), time_stamp=single_date)
             db.session.add(post)
