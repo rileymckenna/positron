@@ -187,8 +187,9 @@ def daterange(start_date, end_date):
 def cleanup(db):
     if db == 'moods':
         Mood.query.delete()
-    else if db == 'users':
+    elif db == 'users':
         User.query.delete()
-    else return 'database not found'
+    else:
+        return 'database not found'
     db.session.commit()
     return render_template('home.html')
