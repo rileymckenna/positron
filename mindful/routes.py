@@ -58,7 +58,8 @@ def get_user(user):
     if(users == None):
         return "User not found"
     else:
-        return users
+        jx = jsonify(users.serialize)
+        return jx
 
 @app.route("/users/<user>/details", methods=['GET'])
 def get_user_details(user):
@@ -77,8 +78,7 @@ def create_user():
     if(tms_id != None):
         possible_user = User.query.filter_by(teams_id=tms_id).first()
         if(possible_user == None):
-            user = User()
-            user.teams_id = tms_id
+            user = User(id=None, teams_id=tms_id)
             db.session.add(user)
             db.session.commit()
             return redirect(url_for('get_user', user=user.teams_id), 200)
