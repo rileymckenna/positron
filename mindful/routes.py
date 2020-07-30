@@ -178,6 +178,7 @@ def daterange(start_date, end_date):
 
 @app.route("/cleanup", methods=['GET'])
 def cleanup():
-    delete = Mood.query.delete()
+    Mood.query.delete()
+    User.query.delete()
     db.session.commit()
     return render_template('home.html')
