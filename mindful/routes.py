@@ -12,6 +12,11 @@ def home():
     moods = Mood.query.all()
     return render_template('home.html', moods=moods)
 
+@app.route("/data")
+def data():
+    moods = Mood.query.all()
+    return jsonify([i.serialize for i in moods])
+
 @app.route("/dev")
 def dev():
     return render_template('credits.html')

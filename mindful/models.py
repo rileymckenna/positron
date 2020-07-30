@@ -29,4 +29,8 @@ class Mood(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):
-        return "{self.id} {self.rating}"
+        return "{date: $s, value: $d}" % (self.time_stamp.strftime('%Y-%m-%d'), self.rating)
+
+    @property
+    def serialize(self):
+        return {'date': self.time_stamp.strftime('%Y-%m-%d'), 'value': self.rating}
