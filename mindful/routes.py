@@ -86,6 +86,7 @@ def get_user(user):
 
 @app.route("/users/<user>/details", methods=['GET'])
 def get_user_details(user):
+    #gets user details
     users = User.query.filter_by(teams_id=user).first()
     if(users == None):
         return "User details not found"
@@ -93,7 +94,7 @@ def get_user_details(user):
         return render_template('user.html', user=users)
 
 @app.route("/users/all", methods=['GET'])
-def get_user_details(user):
+def get_all_users():
     users = User.query.all()
     if(users == None):
         return "User details not found"
