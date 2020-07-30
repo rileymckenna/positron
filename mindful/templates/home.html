@@ -1,69 +1,203 @@
 {% extends "layout.html" %}
 {% block content %}
-<!-- Load d3.js -->
-<script src="https://d3js.org/d3.v4.js"></script>
 
-<!-- Create a div where the graph will take place -->
-<h1>test</h1>
-<div id="my_dataviz"></div>
+<head>
+    <style>
+        .body {
+            height: 100%;
+        }
 
+        svg {
+            height: 2000;
+            width: 100%;
+        }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.9.2/d3.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-color/1.2.1/d3-color.js"></script>
+</head>
+<h3>Moodchart - {{ user }}</h3>
+<h4>Emotions</h4>
+<svg id="moodchart"></svg>
 <script>
+    var user = "{{ user }}";
+    var datapath;
+    if (user === 'Company') datapath = '/data';
+    else datapath = '/data/' + user;
+    var promises = [];
+    var emotions = 3;
 
-  // set the dimensions and margins of the graph
-  var margin = {top: 10, right: 30, bottom: 30, left: 40},
-      width = 460 - margin.left - margin.right,
-      height = 400 - margin.top - margin.bottom;
-  
-  // append the svg object to the body of the page
-  var svg = d3.select("#my_dataviz")
-    .append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-      .attr("transform",
-            "translate(" + margin.left + "," + margin.top + ")");
-  
-  // get the data
-  var graphData = {{ data | safe }};
-  function drawgraph(data) {
-  
-    // X axis: scale and draw:
-    var x = d3.scaleLinear()
-        .domain([0, 1000])     // can use this instead of 1000 to have the max of data: d3.max(data, function(d) { return +d.price })
-        .range([0, width]);
-    svg.append("g")
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x));
-  
-    // set the parameters for the histogram
-    var histogram = d3.histogram()
-        .value(function(d) { return d.time_stamp; })   // I need to give the vector of value
-        .domain(x.domain())  // then the domain of the graphic
-        .thresholds(x.ticks(5)); // then the numbers of bins
-  
-    // And apply this function to data to get the bins
-    var bins = histogram(data);
-  
-    // Y axis: scale and draw:
-    var y = d3.scaleLinear()
-        .range([height, 0]);
-        y.domain([0, d3.max(bins, function(d) { return d.rating; })]);   // d3.hist has to be called before the Y axis obviously
-    svg.append("g")
-        .call(d3.axisLeft(y));
-  
-    // append the bar rectangles to the svg element
-    svg.selectAll("rect")
-        .data(bins)
-        .enter()
-        .append("rect")
-          .attr("x", 1)
-          .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; })
-          .attr("width", function(d) { return x(d.x1) - x(d.x0) -1 ; })
-          .attr("height", function(d) { return height - y(d.length); })
-          .style("fill", "#69b3a2")
-  
-  };
-  drawgraph(graphData);
-  </script>
 
+    promises.push(d3.json(datapath));
+
+    Promise.all(promises).then(function (data) {
+        var dateValues = data[0].map(dv => ({
+            date: d3.timeDay(new Date(dv.date)),
+            value: Number(dv.value)
+        }));
+        dateValues.sort((a, b) => a.date - b.date);
+
+        var svg = d3.select("#moodchart");
+        var { width, height } = document
+            .getElementById("moodchart")
+            .getBoundingClientRect();
+
+        var years = d3
+            .nest()
+            .key(d => d.date.getUTCFullYear())
+            .entries(dateValues)
+            .reverse();
+
+        var values = dateValues.map(c => c.value);
+        var maxValue = d3.max(values);
+        var minValue = d3.min(values);
+
+        var cellSize = 15;
+        var yearHeight = cellSize * 7;
+
+        var group = svg.append("g");
+
+        var year = group
+            .selectAll("g")
+            .data(years)
+            .join("g")
+            .attr(
+                "transform",
+                (d, i) => `translate(50, ${yearHeight * i + cellSize * 1.5})`
+            );
+
+        year
+            .append("text")
+            .attr("x", -5)
+            .attr("y", -30)
+            .attr("text-anchor", "end")
+            .attr("font-size", 16)
+            .attr("font-weight", 550)
+            .attr("transform", "rotate(270)")
+            .text(d => d.key);
+
+        var formatDay = d =>
+            ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"][d.getUTCDay()];
+        var countDay = d => d.getUTCDay();
+        var timeWeek = d3.utcSunday;
+        var formatDate = d3.utcFormat("%x");
+        var colorFn =  function(d) {
+            if(d == 0) return "yellow";
+            else if (d == 1) {
+                return "#69b3a2";
+            } else {
+                return "steelblue";
+            }     
+        }
+        var format = d3.format("+.2%");
+
+        year
+            .append("g")
+            .attr("text-anchor", "end")
+            .selectAll("text")
+            .data(d3.range(7).map(i => new Date(1995, 0, i)))
+            .join("text")
+            .attr("x", -5)
+            .attr("y", d => (countDay(d) + 0.5) * cellSize)
+            .attr("dy", "0.31em")
+            .attr("font-size", 12)
+            .text(formatDay);
+
+        year
+            .append("g")
+            .selectAll("rect")
+            .data(d => d.values)
+            .join("rect")
+            .attr("width", cellSize - 1.5)
+            .attr("height", cellSize - 1.5)
+            .attr(
+                "x",
+                (d, i) => timeWeek.count(d3.utcYear(d.date), d.date) * cellSize + 10
+            )
+            .attr("y", d => countDay(d.date) * cellSize + 0.5)
+            .attr("fill", d => colorFn(d.value))
+            .append("title")
+            .text(d => `${formatDate(d.date)}: ${d.value.toFixed(2)}`);
+
+        var legend = group
+            .append("g")
+            .attr(
+                "transform",
+                `translate(10, ${years.length * yearHeight + cellSize * 4})`
+            );
+
+        var categoriesCount = emotions;
+        var categories = [
+            {val: 0,  color: "yellow"    , selected: true, emotion: "happy"   },
+            {val: 1, color: "#69b3a2"   , selected: true, emotion: "content" },
+            {val: 2, color: "steelblue" , selected: true, emotion: "sad"     }
+        ]
+
+        // var categories = [...Array(categoriesCount)].map((_, i) => {
+        //     var upperBound = (maxValue / categoriesCount) * (i + 1);
+        //    var lowerBound = (maxValue / categoriesCount) * i;
+        
+        //    return {
+        //        upperBound,
+        //        lowerBound,
+        //        color: colorFn,
+        //        selected: true
+        //    };
+        // });
+
+        var legendWidth = 200;
+
+
+        function toggle(legend) {
+            var { val, selected, emotion } = legend;
+
+            legend.selected = !selected;
+
+            var highlightedDates = years.map(y => ({
+                key: y.key,
+                values: y.values.filter(
+                    v => v.value == val
+                )
+            }));
+
+            year
+                .data(highlightedDates)
+                .selectAll("rect")
+                .data(d => d.values, d => d.date)
+                .transition()
+                .duration(500)
+                .attr("fill", d => (legend.selected ? colorFn(d.value) : "white"));
+        }
+
+        legend
+            .selectAll("rect")
+            .data(categories)
+            .enter()
+            .append("rect")
+            .attr("fill", d => d.color)
+            .attr("x", (d, i) => legendWidth * i)
+            .attr("width", legendWidth)
+            .attr("height", 20)
+            .on("click", toggle);
+
+        legend
+            .selectAll("text")
+            .data(categories)
+            .join("text")
+            .attr("transform", "rotate(90)")
+            .attr("y", (d, i) => -legendWidth * i)
+            .attr("dy", -30)
+            .attr("x", 18)
+            .attr("text-anchor", "start")
+            .attr("font-size", 11)
+            .text(d => `${d.emotion}`);
+
+        legend
+            .append("text")
+            .attr("dy", -5)
+            .attr("font-size", 14)
+            .attr("text-decoration", "underline")
+            .text("Click on category to select/deselect days");
+    });
+</script>
 {% endblock content %}

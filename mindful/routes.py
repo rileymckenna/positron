@@ -12,7 +12,7 @@ import random
 @app.route("/")
 @app.route("/home")
 def home():
-    return render_template('home.html')
+    return render_template('home.html', user="Company")
 
 @app.route("/view")
 def view():
@@ -23,6 +23,11 @@ def view():
 @app.route("/data")
 def data():
     moods = Mood.query.all()
+    return jsonify([i.serialize for i in moods])
+
+@app.route("/data/<user>")
+def data_user(user):
+    moods = Mood.query.filter_by(user_id=user)
     return jsonify([i.serialize for i in moods])
 
 
@@ -81,7 +86,7 @@ def get_user(user):
 
 @app.route("/users/<user>/details", methods=['GET'])
 def get_user_details(user):
-    users = User.query.filter_by(teams_id=user).first()
+    users = Mood.query.filter_by(user_id=user).first()
     if(users == None):
         return "User details not found"
     else:
@@ -141,30 +146,37 @@ def createUser(user):
 @app.route("/users/<user>/moods", methods=['GET'])
 def get_user_moods(user):
     users = User.query.filter_by(teams_id=user).first()
-    moods = Mood.query.filter_by(user_id=users.id)
     if(users == None):
         return "User not found"
     else:
-        li = []
-        for item in moods:
-            li.append(item.full_serialize)
-        jx = jsonify(li)
-        return jx
-@app.route("/populate", methods=['GET'])
-def populate():
+        return render_template('home.html', user=user)
+
+@app.route("/populate/<emotion>", methods=['GET'])
+def populate(emotion):
+    if emotion == 'sad':
+        up = 2
+        low = 1
+        user = 1
+    elif emotion == 'happy':
+        up = 1
+        low = 0
+        user = 2
     start_date = date(2015, 1, 1)
     end_date = date(2020, 8, 1)
-    for user_id in range(1):
-        for single_date in daterange(start_date, end_date):
-            post = Mood(user_id=user_id, rating=random.randint(0,2), time_stamp=single_date)
-            db.session.add(post)
-            db.session.commit()
+
+    for single_date in daterange(start_date, end_date):
+        post = Mood(user_id=user, rating=random.randint(low,up), time_stamp=single_date)
+        db.session.add(post)
+        db.session.commit()
     return render_template('home.html')
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 03110faaac8372ccd95552b10614d624d4bed7c7
 def daterange(start_date, end_date):
     for n in range(int((end_date - start_date).days)):
         yield start_date + timedelta(n)
+
+
+@app.route("/cleanup", methods=['GET'])
+def cleanup():
+    db.session.execute(Mood.delete())
+    db.session.commit()
+    return render_template('home.html')
