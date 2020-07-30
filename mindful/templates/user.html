@@ -1,13 +1,10 @@
 {% extends "layout.html" %}
 {% block content %}
-<h1>Mi-tracker</h1>
-<article class="media content-section">
-  <div class="media-body">
-    <div class="article-metadata">
-      <a class="mr-2" href="/moods">{{ user.user_id }}</a>
-      <a class="mr-2" href="/moods">{{ user.teams_id }}</a>
-    </div>
-    </div>
-  </div>
-</article>
+  <h1>Mi-tracker</h1>
+  {% for user in users %}
+    <p>
+          <a class="mr-2" href="moods">{{ user.user_id }}</a>
+          <a class="mr-2" href="moods">{{ user.teams_id }}</a>
+    </p>
+  {% endfor %}
 {% endblock content %}

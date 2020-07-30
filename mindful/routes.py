@@ -86,11 +86,14 @@ def get_user(user):
 
 @app.route("/users/<user>/details", methods=['GET'])
 def get_user_details(user):
-    users = User.query.filter_by(teams_id=user).first()
+    if user == 'all':
+        users = User.query.all()
+    else:
+        users = User.query.filter_by(teams_id=user).first()
     if(users == None):
         return "User details not found"
     else:
-        return render_template('user.html', user=users)
+        return render_template('user.html', users=users)
 
 
 @app.route("/users/new", methods=['POST'])
@@ -109,24 +112,6 @@ def create_user():
             return redirect(url_for('home'), 404)
     else:
         return redirect(url_for('home'), 404)
-
-
-@app.route("/checkin", methods=['POST'])
-def create_user_checkin():
-    content = request.json
-    rating = content['rating']
-    text = content['content']
-    idx = content['user_id']
-    post = Mood(rating=rating, user_id=idx, content=text)
-    db.session.add(post)
-    db.session.commit()
-    return jsonify(post.full_serialize)
-
-
-@app.route("/resources")
-def resources():
-    return render_template("resources.html")
-
 
 @app.route("/users/<user>/new", methods=['POST'])
 def createUser(user):
@@ -149,7 +134,24 @@ def get_user_moods(user):
     if(users == None):
         return "User not found"
     else:
-        return render_template('home.html', user=user)
+        return render_template('home.html', user=users.id)
+
+@app.route("/checkin", methods=['POST'])
+def create_user_checkin():
+    content = request.json
+    rating = content['rating']
+    text = content['content']
+    idx = content['user_id']
+    post = Mood(rating=rating, user_id=idx, content=text)
+    db.session.add(post)
+    db.session.commit()
+    return jsonify(post.full_serialize)
+
+
+@app.route("/resources")
+def resources():
+    return render_template("resources.html")
+
 
 @app.route("/populate/<emotion>", methods=['GET'])
 def populate(emotion):
@@ -177,6 +179,7 @@ def daterange(start_date, end_date):
 
 @app.route("/cleanup", methods=['GET'])
 def cleanup():
-    db.session.execute(Mood.delete())
+    Mood.query.delete()
+    User.query.delete()
     db.session.commit()
     return render_template('home.html')
