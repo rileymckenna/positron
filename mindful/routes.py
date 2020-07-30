@@ -86,14 +86,19 @@ def get_user(user):
 
 @app.route("/users/<user>/details", methods=['GET'])
 def get_user_details(user):
-    if user == 'all':
-        users = User.query.all()
-    else:
-        users = User.query.filter_by(teams_id=user).first()
+    users = User.query.filter_by(teams_id=user).first()
     if(users == None):
         return "User details not found"
     else:
-        return render_template('user.html', users=users)
+        return render_template('user.html', user=users)
+
+@app.route("/users/all", methods=['GET'])
+def get_user_details(user):
+    users = User.query.all()
+    if(users == None):
+        return "User details not found"
+    else:
+        return render_template('users.html', users=users)
 
 
 @app.route("/users/new", methods=['POST'])
